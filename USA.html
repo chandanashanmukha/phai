@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAI Prevention System - US Market Impact</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #0d47a1;
+            --secondary: #1976D2;
+            --accent: #E74C3C;
+            --light: #ECF0F1;
+            --success: #2ECC71;
+            --text: #34495E;
+            --chart-blue-1: rgba(25, 118, 210, 0.9);
+            --chart-blue-2: rgba(25, 118, 210, 0.7);
+            --chart-blue-3: rgba(25, 118, 210, 0.5);
+            --chart-blue-4: rgba(25, 118, 210, 0.3);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(120deg, var(--primary), #002171);
+            color: white;
+            padding: 25px 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 26px;
+            font-weight: 600;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            padding: 35px;
+            background: #fafbfd;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--secondary);
+            position: relative;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .market-label {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 10px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: var(--secondary);
+            color: white;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        
+        .stat-card .context {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            padding: 0 35px 35px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .chart-card:hover {
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+        }
+        
+        .chart-title .market-label {
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .logo {
+            height: 44px;
+            background: white;
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            color: var(--primary);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .impact-section {
+            padding: 0 35px 35px;
+        }
+        
+        .impact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+        
+        .impact-card {
+            color: white;
+            border-radius: 12px;
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, var(--primary), #2962ff);
+            box-shadow: 0 8px 20px rgba(13, 71, 161, 0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .impact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 28px rgba(13, 71, 161, 0.4);
+        }
+        
+        .impact-card h3 {
+            font-size: 20px;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .impact-card p {
+            font-size: 15px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+            opacity: 0.9;
+        }
+        
+        .impact-card .highlight {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--light);
+            margin: 12px 0;
+            display: block;
+        }
+        
+        .impact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(40px, -60px);
+        }
+        
+        .market-summary {
+            background: linear-gradient(135deg, #1976D2, #0d47a1);
+            color: white;
+            border-radius: 12px;
+            padding: 28px 35px;
+            margin: 0 35px 35px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(13, 71, 161, 0.25);
+        }
+        
+        .market-summary h2 {
+            font-size: 22px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .market-summary p {
+            font-size: 15px;
+            line-height: 1.7;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 12px;
+            opacity: 0.95;
+        }
+        
+        .market-summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 220px;
+            height: 220px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50px, -100px);
+        }
+        
+        .market-summary::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50px, 50px);
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-top: 6px;
+            transition: all 0.3s ease;
+        }
+        
+        .tag:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .footer {
+            background: linear-gradient(120deg, var(--primary), #002171);
+            color: rgba(255, 255, 255, 0.8);
+            padding: 18px 35px;
+            font-size: 13px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>HAI Prevention System: US Market Impact Dashboard</h1>
+            <div class="logo">HAI<span>Shield</span></div>
+        </div>
+        
+        <div class="stats-overview">
+            <div class="stat-card">
+                <span class="market-label">US Market</span>
+                <h3>Annual HAI Cases</h3>
+                <div class="number">1.7M</div>
+                <div class="context">Patients affected in US annually</div>
+            </div>
+            <div class="stat-card">
+                <span class="market-label">US Market</span>
+                <h3>Annual Deaths</h3>
+                <div class="number">99K</div>
+                <div class="context">HAI-related deaths in US</div>
+            </div>
+            <div class="stat-card">
+                <span class="market-label">US Market</span>
+                <h3>Economic Impact</h3>
+                <div class="number">$20B</div>
+                <div class="context">Annual healthcare costs</div>
+            </div>
+            <div class="stat-card">
+                <span class="market-label">US Market</span>
+                <h3>Reimbursement Risk</h3>
+                <div class="number">$3.2B</div>
+                <div class="context">Annual penalties for hospitals</div>
+            </div>
+        </div>
+        
+        <div class="market-summary">
+            <h2>US Market Solution Impact</h2>
+            <p>Our HAI Prevention System directly addresses CMS reimbursement penalties and Joint Commission requirements, providing hospitals with significant financial benefits while improving patient outcomes.</p>
+            <p>The integrated compliance monitoring and automated prevention measures have demonstrated exceptional success rates across all hospital sizes and types.</p>
+            <div>
+                <span class="tag">CMS Compliant</span>
+                <span class="tag">Joint Commission Approved</span>
+                <span class="tag">Reimbursement Maximizer</span>
+                <span class="tag">Infection Prevention</span>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <span class="market-label">US</span>
+                    HAI Reduction After Implementation
+                </div>
+                <canvas id="usReductionChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">
+                    <span class="market-label">US</span>
+                    Cost Savings by Hospital Type
+                </div>
+                <canvas id="usSavingsChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">
+                    <span class="market-label">US</span>
+                    Compliance Improvement
+                </div>
+                <canvas id="complianceChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">
+                    <span class="market-label">US</span>
+                    ROI Timeline (Months)
+                </div>
+                <canvas id="roiChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="impact-section">
+            <div class="impact-cards">
+                <div class="impact-card">
+                    <h3>US Market Impact</h3>
+                    <p>Reduction in HAI cases directly impacts hospital reimbursements</p>
+                    <span class="highlight">$2.3M</span>
+                    <p>Average annual savings for a 300-bed hospital</p>
+                </div>
+                <div class="impact-card">
+                    <h3>US Implementation ROI</h3>
+                    <p>Average time to positive return on investment</p>
+                    <span class="highlight">8 months</span>
+                    <p>For standard US hospital implementation</p>
+                </div>
+                <div class="impact-card">
+                    <h3>US Regulatory Compliance</h3>
+                    <p>Meeting CMS and Joint Commission standards</p>
+                    <span class="highlight">95%</span>
+                    <p>Hospitals achieving full compliance with our system</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            HAI Prevention System • US Market Impact Analysis • 2025
+        </div>
+    </div>
+
+    <script>
+        // US HAI Reduction Chart
+        const usReductionCtx = document.getElementById('usReductionChart').getContext('2d');
+        const usReductionChart = new Chart(usReductionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Surgical Site', 'Central Line', 'Ventilator', 'Urinary Catheter', 'Overall'],
+                datasets: [{
+                    label: 'Reduction Rate (%)',
+                    data: [67, 54, 49, 43, 60],
+                    backgroundColor: [
+                        'rgba(25, 118, 210, 0.8)',
+                        'rgba(25, 118, 210, 0.8)',
+                        'rgba(25, 118, 210, 0.8)',
+                        'rgba(25, 118, 210, 0.8)',
+                        'rgba(25, 118, 210, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Reduction Rate (%)',
+                            font: {
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Infection Type',
+                            font: {
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 71, 161, 0.9)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12,
+                        cornerRadius: 6
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+        
+        // US Savings Chart
+        const usSavingsCtx = document.getElementById('usSavingsChart').getContext('2d');
+        const usSavingsChart = new Chart(usSavingsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Large Hospitals', 'Mid-size', 'Small', 'Rural'],
+                datasets: [{
+                    data: [2500000, 1800000, 1200000, 850000],
+                    backgroundColor: [
+                        'rgba(25, 118, 210, 0.9)',
+                        'rgba(25, 118, 210, 0.7)',
+                        'rgba(25, 118, 210, 0.5)',
+                        'rgba(25, 118, 210, 0.3)'
+                    ],
+                    borderColor: [
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.raw;
+                                if (value >= 1000000) {
+                                    label += '$' + (value / 1000000).toFixed(1) + 'M';
+                                } else {
+                                    label += '$' + value.toLocaleString();
+                                }
+                                return label;
+                            }
+                        },
+                        backgroundColor: 'rgba(13, 71, 161, 0.9)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12,
+                        cornerRadius: 6
+                    },
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            boxWidth: 12,
+                            font: {
+                                size: 12
+                            }
+                        }
+                    }
+                },
+                animation: {
+                    animateRotate: true,
+                    animateScale: true,
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                cutout: '65%',
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+        
+        // US Compliance Chart
+        const complianceCtx = document.getElementById('complianceChart').getContext('2d');
+        const complianceChart = new Chart(complianceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Baseline', 'Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
+                datasets: [{
+                    label: 'US Hospitals',
+                    data: [41, 52, 68, 76, 82, 85, 89],
+                    borderColor: 'rgb(25, 118, 210)',
+                    backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointBackgroundColor: 'rgb(25, 118, 210)',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Compliance Rate (%)',
+                            font: {
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time Period',
+                            font: {
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 71, 161, 0.9)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12,
+                        cornerRadius: 6
+                    }
+                },
+                animation: {
+                    duration: 2000
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+        
+        // ROI Chart
+        const roiCtx = document.getElementById('roiChart').getContext('2d');
+        const roiChart = new Chart(roiCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Large', 'Mid-size', 'Small', 'Rural'],
+                datasets: [{
+                    label: 'ROI Timeline (Months)',
+                    data: [7, 8, 10, 12],
+                    backgroundColor: [
+                        'rgba(25, 118, 210, 0.9)',
+                        'rgba(25, 118, 210, 0.7)', 
+                        'rgba(25, 118, 210, 0.5)',
+                        'rgba(25, 118, 210, 0.3)'
+                    ],
+                    borderColor: [
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)',
+                        'rgb(13, 71, 161)'
+                    ],
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Months to Positive ROI',
+                            font: {
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: true,
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hospital Type',
+                            font: {
+                                weight: '600'
+                            }
+                        },
+                        grid: {
+                            display: false
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(13, 71, 161, 0.9)',
+                        titleFont: {
+                            size: 14
+                        },
+                        bodyFont: {
+                            size: 13
+                        },
+                        padding: 12,
+                        cornerRadius: 6
+                    }
+                },
+                animation: {
+                    duration: 2000,
+                    easing: 'easeOutQuart'
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+    </script>
+</body>
+</html>

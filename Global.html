@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAI Prevention System - Global Market Impact</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <style>
+        :root {
+            --primary: #1a3a5f;
+            --secondary: #3498DB;
+            --accent: #E74C3C;
+            --light: #ECF0F1;
+            --success: #2ECC71;
+            --text: #34495E;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: var(--text);
+            padding: 20px;
+        }
+        
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: var(--primary);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .stats-overview {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s;
+            border-top: 4px solid var(--secondary);
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-card h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 5px;
+        }
+        
+        .stat-card .context {
+            font-size: 13px;
+            color: #95a5a6;
+        }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 0 30px 30px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            padding: 20px;
+            position: relative;
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .map-section {
+            padding: 0 30px 30px;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .logo {
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            color: var(--primary);
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .impact-section {
+            padding: 0 30px 30px;
+        }
+        
+        .impact-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .impact-card {
+            background: linear-gradient(135deg, var(--primary), #2c5282);
+            color: white;
+            border-radius: 8px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .impact-card h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .impact-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .impact-card .highlight {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--light);
+            margin: 10px 0;
+            display: block;
+        }
+        
+        .impact-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(40px, -60px);
+        }
+        
+        .footer {
+            background: var(--primary);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 15px 30px;
+            font-size: 12px;
+            text-align: center;
+        }
+        
+        /* For the map visualization */
+        #europe-map {
+            width: 100%;
+            height: 400px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .country {
+            fill: #bdc3c7;
+            stroke: white;
+            stroke-width: 0.5;
+            transition: fill 0.3s;
+        }
+        
+        .country:hover {
+            fill: var(--secondary);
+            cursor: pointer;
+        }
+        
+        .high-risk {
+            fill: #e74c3c;
+        }
+        
+        .medium-risk {
+            fill: #f39c12;
+        }
+        
+        .low-risk {
+            fill: #2ecc71;
+        }
+        
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 4px;
+            pointer-events: none;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        /* Summary box for market opportunity */
+        .market-summary {
+            background: linear-gradient(135deg, #3498db, #2c5282);
+            color: white;
+            border-radius: 8px;
+            padding: 20px 30px;
+            margin: 0 30px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .market-summary h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .market-summary p {
+            font-size: 14px;
+            line-height: 1.6;
+            position: relative;
+            z-index: 2;
+            margin-bottom: 10px;
+        }
+        
+        .market-summary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(50px, -100px);
+        }
+        
+        .market-summary::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50px, 50px);
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            margin-right: 8px;
+            margin-top: 5px;
+        }
+        
+        /* Hospital visualization */
+        .hospital-floor {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #f5f7fa;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .room {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border: 1px solid #ddd;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: #555;
+        }
+        
+        .corridor {
+            position: absolute;
+            background: #f0f0f0;
+        }
+        
+        .sensor {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--secondary);
+            border: 2px solid white;
+        }
+        
+        .sensor.active {
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.3);
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.6);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+            }
+        }
+        
+        .risk-high {
+            background: rgba(231, 76, 60, 0.15);
+        }
+        
+        .risk-medium {
+            background: rgba(243, 156, 18, 0.15);
+        }
+        
+        .risk-low {
+            background: rgba(46, 204, 113, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header">
+            <h1>HAI Prevention System: Global Market Impact Dashboard</h1>
+            <div class="logo">HAI<span>Shield</span></div>
+        </div>
+        
+        <div class="stats-overview">
+            <div class="stat-card">
+                <h3>Annual HAI Cases</h3>
+                <div class="number">4.5M</div>
+                <div class="context">Patients affected </div>
+            </div>
+            <div class="stat-card">
+                <h3>Annual Deaths</h3>
+                <div class="number">99K</div>
+                <div class="context">HAI-related deaths</div>
+            </div>
+            <div class="stat-card">
+                <h3>Economic Impact</h3>
+                <div class="number">€7B</div>
+                <div class="context">Annual cost</div>
+            </div>
+            <div class="stat-card">
+                <h3>Prevention Rate</h3>
+                <div class="number">58%</div>
+                <div class="context">Reduction with our system</div>
+            </div>
+        </div>
+        
+        <div class="market-summary">
+            <h2>Cross-Market Solution for Global Impact</h2>
+            <p>Our HAI Prevention System is uniquely positioned to address healthcare-associated infections across both US and European markets, with adaptable technology addressing region-specific challenges.</p>
+            <p>We're pioneering rapid deployment in Germany, France, and the UK where regulatory pressures are creating strong demand for innovative prevention solutions.</p>
+            <div>
+                <span class="tag">Multi-Market Solution</span>
+                <span class="tag">Cross-Border Standards</span>
+                <span class="tag">Regulatory Compliance</span>
+                <span class="tag">Infection Prevention</span>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">HAI Reduction After Implementation</div>
+                <canvas id="reductionChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">Cost Savings by Hospital Type</div>
+                <canvas id="savingsChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="map-section">
+            <div class="chart-card full-width">
+                <div class="chart-title">European Market Opportunity Heatmap</div>
+                <div id="europe-map"></div>
+            </div>
+        </div>
+        
+        <div class="charts-container">
+            <div class="chart-card">
+                <div class="chart-title">Compliance Improvement</div>
+                <canvas id="complianceChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <div class="chart-title">ROI Timeline (Months)</div>
+                <canvas id="roiChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="impact-section">
+            <div class="impact-cards">
+                <div class="impact-card">
+                    <h3>US Market Impact</h3>
+                    <p>Reduction in HAI cases directly impacts hospital reimbursements</p>
+                    <span class="highlight">$2.3M</span>
+                    <p>Average annual savings for a 300-bed hospital</p>
+                </div>
+                <div class="impact-card">
+                    <h3>European Market Impact</h3>
+                    <p>Compliance with new EU Patient Safety Directives</p>
+                    <span class="highlight">98%</span>
+                    <p>Hospitals meeting new standards with our system</p>
+                </div>
+                <div class="impact-card">
+                    <h3>Cross-Market Benefit</h3>
+                    <p>Standardized prevention approach for international networks</p>
+                    <span class="highlight">27%</span>
+                    <p>Reduction in cross-border infection incidents</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            HAI Prevention System • Global Market Impact Analysis • 2025
+        </div>
+    </div>
+
+    <script>
+        // HAI Reduction Chart
+        const reductionCtx = document.getElementById('reductionChart').getContext('2d');
+        const reductionChart = new Chart(reductionCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Surgical Site', 'Central Line', 'Ventilator', 'Urinary Catheter', 'Overall'],
+                datasets: [{
+                    label: 'Reduction Rate (%)',
+                    data: [63, 52, 47, 41, 58],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)',
+                        'rgba(52, 73, 94, 0.7)',
+                        'rgba(231, 76, 60, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(46, 204, 113)',
+                        'rgb(52, 152, 219)',
+                        'rgb(155, 89, 182)',
+                        'rgb(52, 73, 94)',
+                        'rgb(231, 76, 60)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Reduction Rate (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Infection Type'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // Savings Chart
+        const savingsCtx = document.getElementById('savingsChart').getContext('2d');
+        const savingsChart = new Chart(savingsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['US Hospitals', 'EU Public', 'EU Private', 'Cross-Border'],
+                datasets: [{
+                    data: [2300000, 1750000, 1950000, 2100000],
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(231, 76, 60)',
+                        'rgb(46, 204, 113)',
+                        'rgb(52, 152, 219)',
+                        'rgb(155, 89, 182)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                const value = context.raw;
+                                if (value >= 1000000) {
+                                    label += '$' + (value / 1000000).toFixed(1) + 'M';
+                                } else {
+                                    label += '$' + value.toLocaleString();
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Compliance Chart
+        const complianceCtx = document.getElementById('complianceChart').getContext('2d');
+        const complianceChart = new Chart(complianceCtx, {
+            type: 'line',
+            data: {
+                labels: ['Baseline', 'Month 1', 'Month 2', 'Month 3', 'Month 4', 'Month 5', 'Month 6'],
+                datasets: [{
+                    label: 'US Hospitals',
+                    data: [41, 52, 68, 76, 82, 85, 89],
+                    borderColor: 'rgb(231, 76, 60)',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }, {
+                    label: 'EU Hospitals',
+                    data: [38, 49, 64, 73, 79, 83, 87],
+                    borderColor: 'rgb(52, 152, 219)',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        title: {
+                            display: true,
+                            text: 'Compliance Rate (%)'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time Period'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // ROI Chart
+        const roiCtx = document.getElementById('roiChart').getContext('2d');
+        const roiChart = new Chart(roiCtx, {
+            type: 'bar',
+            data: {
+                labels: ['US Hospitals', 'EU Public', 'EU Private', 'Cross-Border'],
+                datasets: [{
+                    label: 'ROI Timeline (Months)',
+                    data: [8, 10, 7, 9],
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.7)',
+                        'rgba(46, 204, 113, 0.7)',
+                        'rgba(52, 152, 219, 0.7)',
+                        'rgba(155, 89, 182, 0.7)'
+                    ],
+                    borderColor: [
+                        'rgb(231, 76, 60)',
+                        'rgb(46, 204, 113)',
+                        'rgb(52, 152, 219)',
+                        'rgb(155, 89, 182)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Months to Positive ROI'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Hospital Type'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+        
+        // European Map Visualization
+        const width = document.getElementById('europe-map').clientWidth;
+        const height = 400;
+        
+        const svg = d3.select('#europe-map')
+            .append('svg')
+            .attr('width', width)
+            .attr('height', height);
+        
+        // Define a simplified Europe map for visualization
+        const europeData = [
+            { id: "DE", name: "Germany", risk: "high", x: width * 0.5, y: height * 0.4, r: 25 },
+            { id: "FR", name: "France", risk: "high", x: width * 0.4, y: height * 0.5, r: 25 },
+            { id: "UK", name: "United Kingdom", risk: "high", x: width * 0.35, y: height * 0.3, r: 25 },
+            { id: "IT", name: "Italy", risk: "medium", x: width * 0.55, y: height * 0.6, r: 20 },
+            { id: "ES", name: "Spain", risk: "medium", x: width * 0.3, y: height * 0.65, r: 20 },
+            { id: "NL", name: "Netherlands", risk: "medium", x: width * 0.45, y: height * 0.35, r: 18 },
+            { id: "SE", name: "Sweden", risk: "low", x: width * 0.55, y: height * 0.2, r: 15 },
+            { id: "PL", name: "Poland", risk: "medium", x: width * 0.6, y: height * 0.35, r: 18 },
+            { id: "BE", name: "Belgium", risk: "medium", x: width * 0.42, y: height * 0.4, r: 15 },
+            { id: "CH", name: "Switzerland", risk: "low", x: width * 0.48, y: height * 0.48, r: 12 },
+            { id: "AT", name: "Austria", risk: "low", x: width * 0.55, y: height * 0.45, r: 12 },
+            { id: "CZ", name: "Czech Republic", risk: "low", x: width * 0.57, y: height * 0.4, r: 12 }
+        ];
+        
+        // Create a tooltip
+        const tooltip = d3.select('#europe-map')
+            .append('div')
+            .attr('class', 'tooltip')
+            .style('opacity', 0);
+        
+        // Add circles for countries
+        svg.selectAll('circle')
+            .data(europeData)
+            .enter()
+            .append('circle')
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y)
+            .attr('r', d => d.r)
+            .attr('class', d => d.risk === 'high' ? 'high-risk' : d.risk === 'medium' ? 'medium-risk' : 'low-risk')
+            .on('mouseover', function(event, d) {
+                d3.select(this)
+                    .transition()
+                    .duration(200)
+                    .attr('r', d.r * 1.2);
+                
+                tooltip.transition()
+                    .duration(200)
+                    .style('opacity', .9);
+                
+                let content = `<strong>${d.name}</strong><br>`;
+                if (d.risk === 'high') {
+                    content += 'High market potential<br>€900M+ annual impact';
+                } else if (d.risk === 'medium') {
+                    content += 'Medium market potential<br>€400-800M annual impact';
+                } else {
+                    content += 'Growing market potential<br>€100-300M annual impact';
+                }
+                
+                tooltip.html(content)
+                    .style('left', (event.pageX - document.getElementById('europe-map').getBoundingClientRect().left + 10) + 'px')
+                    .style('top', (event.pageY - document.getElementById('europe-map').getBoundingClientRect().top - 40) + 'px');
+            })
+            .on('mouseout', function(event, d) {
+                d3.select(this)
+                    .transition()
+                    .duration(500)
+                    .attr('r', d.r);
+                
+                tooltip.transition()
+                    .duration(500)
+                    .style('opacity', 0);
+            });
+        
+        // Add country labels
+        svg.selectAll('text')
+            .data(europeData)
+            .enter()
+            .append('text')
+            .attr('x', d => d.x)
+            .attr('y', d => d.y + d.r + 12)
+            .attr('text-anchor', 'middle')
+            .attr('font-size', '10px')
+            .attr('fill', '#34495e')
+            .text(d => d.id);
+        
+        // Add legend
+        const legend = svg.append('g')
+            .attr('transform', 'translate(20, 20)');
+        
+        const legendData = [
+            { risk: 'high', label: 'High Market Potential' },
+            { risk: 'medium', label: 'Medium Market Potential' },
+            { risk: 'low', label: 'Growing Market Potential' }
+        ];
+        
+        legend.selectAll('circle')
+            .data(legendData)
+            .enter()
+            .append('circle')
+            .attr('cx', 10)
+            .attr('cy', (d, i) => i * 25)
+            .attr('r', 6)
+            .attr('class', d => d.risk === 'high' ? 'high-risk' : d.risk === 'medium' ? 'medium-risk' : 'low-risk');
+        
+        legend.selectAll('text')
+            .data(legendData)
+            .enter()
+            .append('text')
+            .attr('x', 25)
+            .attr('y', (d, i) => i * 25 + 4)
+            .attr('font-size', '12px')
+            .attr('fill', '#34495e')
+            .text(d => d.label);
+    </script>
+</body>
+</html>

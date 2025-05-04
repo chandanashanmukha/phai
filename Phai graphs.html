@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HAI Global Market Visualization</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            margin-right: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        
+        .tab:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .tab.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+            margin-bottom: 30px;
+        }
+        
+        .insights {
+            background-color: #e8f4fe;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        
+        .insights h3 {
+            margin-top: 0;
+            color: #2980b9;
+        }
+        
+        .insights ul {
+            padding-left: 20px;
+        }
+        
+        .insights li {
+            margin-bottom: 8px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .chart-title {
+            text-align: center;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #555;
+        }
+        
+        .data-source {
+            text-align: right;
+            font-size: 12px;
+            color: #777;
+            font-style: italic;
+            margin-top: 10px;
+        }
+        
+        .highlight {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            min-width: 200px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .prevention-stats {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .prevention-card {
+            flex: 1;
+            min-width: 150px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        
+        .traditional {
+            background-color: #ffecec;
+            border: 1px solid #e74c3c;
+        }
+        
+        .current {
+            background-color: #fff9ec;
+            border: 1px solid #f39c12;
+        }
+        
+        .our-solution {
+            background-color: #e8f8f5;
+            border: 1px solid #2ecc71;
+        }
+        
+        .prevention-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .prevention-label {
+            font-size: 14px;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Healthcare-Associated Infections (HAI) Global Market Analysis</h1>
+        
+        <div class="tabs">
+            <div class="tab active" id="tab-impact">Global Impact</div>
+            <div class="tab" id="tab-prevention">Prevention Effectiveness</div>
+            <div class="tab" id="tab-market">Market Growth</div>
+            <div class="tab" id="tab-regional">Regional Distribution</div>
+        </div>
+        
+        <!-- Global Impact Tab -->
+        <div id="impact-content">
+            <div class="stats-container">
+                <div class="stat-card">
+                    <div class="stat-label">Global HAI Cases</div>
+                    <div class="stat-value">4.5M</div>
+                    <div class="stat-label">Patients Affected Annually</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Annual Deaths</div>
+                    <div class="stat-value">100K</div>
+                    <div class="stat-label">Lives Lost</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Economic Impact</div>
+                    <div class="stat-value">$35B</div>
+                    <div class="stat-label">Annual Cost</div>
+                </div>
+            </div>
+            
+            <div class="chart-title">Global HAI Impact by Category</div>
+            <div class="chart-container">
+                <canvas id="impactChart"></canvas>
+            </div>
+            
+            <div class="insights">
+                <h3>Key Impact Insights:</h3>
+                <ul>
+                    <li>Approximately <span class="highlight">1 in 25 hospital patients</span> will develop a healthcare-associated infection</li>
+                    <li>Surgical site infections account for <span class="highlight">22%</span> of all HAIs</li>
+                    <li>Hospital-acquired pneumonia remains the most <span class="highlight">deadly form</span> of HAI</li>
+                    <li>The average HAI increases a patient's hospital stay by <span class="highlight">7-10 days</span></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Prevention Effectiveness Tab -->
+        <div id="prevention-content" class="hidden">
+            <div class="prevention-stats">
+                <div class="prevention-card traditional">
+                    <div class="prevention-value">10%</div>
+                    <div class="prevention-label">HAI Reduction with Traditional Practices</div>
+                </div>
+                <div class="prevention-card current">
+                    <div class="prevention-value">30%</div>
+                    <div class="prevention-label">HAI Reduction with Current Market Solutions</div>
+                </div>
+                <div class="prevention-card our-solution">
+                    <div class="prevention-value">70%</div>
+                    <div class="prevention-label">HAI Reduction with Our AI Solution</div>
+                </div>
+            </div>
+            
+            <div class="chart-title">Prevention Effectiveness Comparison</div>
+            <div class="chart-container">
+                <canvas id="preventionChart"></canvas>
+            </div>
+            
+            <div class="insights">
+                <h3>Prevention Effectiveness Insights:</h3>
+                <ul>
+                    <li>Our AI-powered solution shows <span class="highlight">2.3x better results</span> than current market leaders</li>
+                    <li>Predictive intervention prevents <span class="highlight">60-75%</span> of potential infections before they occur</li>
+                    <li>For a mid-sized hospital, this translates to approximately <span class="highlight">15-20 lives saved annually</span></li>
+                    <li>The integration of behavioral pattern analysis with environmental monitoring creates a <span class="highlight">synergistic effect</span> not seen in other solutions</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Market Growth Tab -->
+        <div id="market-content" class="hidden">
+            <div class="chart-title">HAI Prevention Market Growth (Billions USD)</div>
+            <div class="chart-container">
+                <canvas id="marketChart"></canvas>
+            </div>
+            
+            <div class="insights">
+                <h3>Market Growth Insights:</h3>
+                <ul>
+                    <li>The global HAI prevention market is expected to reach <span class="highlight">$34.1 billion by 2027</span></li>
+                    <li>North America currently represents the <span class="highlight">largest market share</span> at 42%</li>
+                    <li>AI-driven solutions are the <span class="highlight">fastest growing segment</span> with 24% CAGR</li>
+                    <li>Post-pandemic awareness has accelerated market growth by <span class="highlight">15%</span></li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Regional Distribution Tab -->
+        <div id="regional-content" class="hidden">
+            <div class="chart-title">HAI Regional Distribution & Prevention Investment</div>
+            <div class="chart-container">
+                <canvas id="regionalChart"></canvas>
+            </div>
+            
+            <div class="insights">
+                <h3>Regional Distribution Insights:</h3>
+                <ul>
+                    <li>Europe shows the <span class="highlight">highest adoption rate</span> of advanced HAI prevention systems</li>
+                    <li>Asia-Pacific region represents the <span class="highlight">fastest growing market</span> with 18% CAGR</li>
+                    <li>Developing regions show the <span class="highlight">largest gap</span> between HAI prevalence and prevention investment</li>
+                    <li>North America leads in <span class="highlight">regulatory support</span> for implementation of AI-based prevention systems</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="data-source">
+            Source: World Health Organization, CDC, and industry reports (2023-2024)
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Hide all content sections
+                document.getElementById('impact-content').classList.add('hidden');
+                document.getElementById('prevention-content').classList.add('hidden');
+                document.getElementById('market-content').classList.add('hidden');
+                document.getElementById('regional-content').classList.add('hidden');
+                
+                // Show the selected content section
+                const contentId = tab.id.replace('tab-', '') + '-content';
+                document.getElementById(contentId).classList.remove('hidden');
+            });
+        });
+        
+        // Initialize charts after DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global Impact Chart
+            const impactCtx = document.getElementById('impactChart').getContext('2d');
+            const impactChart = new Chart(impactCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Surgical Site Infections', 'Central Line Infections', 'Urinary Tract Infections', 'Pneumonia', 'C. Difficile Infections', 'Other HAIs'],
+                    datasets: [{
+                        label: 'Annual Cases (Thousands)',
+                        data: [990, 450, 675, 585, 225, 1575],
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Cases (Thousands)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Infection Type'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    var label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toLocaleString() + ' cases';
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Prevention Effectiveness Chart
+            const preventionCtx = document.getElementById('preventionChart').getContext('2d');
+            const preventionChart = new Chart(preventionCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Traditional Practices', 'Ecolab Solutions', 'Xenex UV', 'BD Prevention', 'Clorox Healthcare', 'Our AI Solution'],
+                    datasets: [{
+                        label: 'HAI Reduction Effectiveness (%)',
+                        data: [10, 25, 35, 30, 20, 70],
+                        backgroundColor: [
+                            'rgba(231, 76, 60, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(46, 204, 113, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(231, 76, 60, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(46, 204, 113, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Reduction Percentage (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + '% reduction in HAIs';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Market Growth Chart
+            const marketCtx = document.getElementById('marketChart').getContext('2d');
+            const marketChart = new Chart(marketCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024', '2025', '2026', '2027'],
+                    datasets: [{
+                        label: 'Market Size (Billions USD)',
+                        data: [12.5, 14.2, 16.8, 19.5, 22.4, 25.8, 29.7, 34.1],
+                        backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                        borderColor: 'rgba(52, 152, 219, 1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: 'rgba(52, 152, 219, 1)',
+                        pointBorderColor: '#fff',
+                        pointRadius: 5,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Billions USD'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Year'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return '$' + context.raw + ' billion';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Regional Distribution Chart
+            const regionalCtx = document.getElementById('regionalChart').getContext('2d');
+            const regionalChart = new Chart(regionalCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['North America', 'Europe', 'Asia-Pacific', 'Latin America', 'Middle East & Africa'],
+                    datasets: [{
+                        label: 'HAI Prevention Market Share',
+                        data: [42, 28, 18, 8, 4],
+                        backgroundColor: [
+                            'rgba(52, 152, 219, 0.7)',
+                            'rgba(46, 204, 113, 0.7)',
+                            'rgba(155, 89, 182, 0.7)',
+                            'rgba(243, 156, 18, 0.7)',
+                            'rgba(231, 76, 60, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(52, 152, 219, 1)',
+                            'rgba(46, 204, 113, 1)',
+                            'rgba(155, 89, 182, 1)',
+                            'rgba(243, 156, 18, 1)',
+                            'rgba(231, 76, 60, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.raw + '% market share';
+                                }
+                            }
+                        },
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
